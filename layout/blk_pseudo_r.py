@@ -112,6 +112,8 @@ def build(name='pseudo_r'):
     c.label('b', 'metal1', sb[0], cy(sb) - 0.1, sb[2], cy(sb) + 0.1, port=2)
     c.label('rst', 'metal3', xg0 - 0.2, yg - 0.2, xg0 + 0.2, yg + 0.2, port=3)
     c.label('vss', 'metal1', S1.x - 0.1, yb - 0.1, S1.x + 0.1, yb + 0.1, port=4)
+    c.ports = dict(a=(xl, ybus), b=(cx(sb), cy(sb)), b_m1=sb, rst=(xg0, yg), rst_span=(xg0, xg1, yg), vss=(S1.x, yb),
+                   vss_span=(S1.x, S3.x, yb))
     return c
 
 if __name__ == '__main__':

@@ -200,7 +200,7 @@ class Placed:
 def drc_tcl(cell):
     return '\n'.join([f'load {cell}', 'select top cell', 'drc euclidean on', 'drc style drc(full)', 'drc check', 'drc catchup',
                       'set n [drc list count total]', 'puts "DRC_TOTAL $n"',
-                      'foreach {why boxes} [drc listall why] { puts "DRC_WHY [llength $boxes] $why : [lrange $boxes 0 2]" }'])
+                      'foreach {why boxes} [drc listall why] { puts "DRC_WHY [llength $boxes] $why : [lrange $boxes 0 2]"; foreach b $boxes { puts "DRC_BOX $why : $b" } }'])
 
 def extract_tcl(cell, pex=False):
     lines = [f'load {cell}', 'select top cell', 'extract do local', 'extract all']
@@ -226,3 +226,17 @@ def lvs(cell, schem_netlist, schem_cell=None):
     ok = 'Circuits match uniquely' in txt and 'Final result: Circuits match uniquely' in txt or \
          re.search(r'Final result:\s+Circuits match uniquely', txt) is not None
     return ok, txt
+
+
+def cell_bbox(cells):
+    """Bounding boxes (um) of saved cells, measured by Magic."""
+    lines = []
+    for c in cells:
+        lines += [f'load {c}', 'select top cell', f'puts "BBOX {c} [box values]"']
+    out = run_magic('\n'.join(lines), 'bbox')
+    res = {}
+    for l in out.splitlines():
+        if l.startswith('BBOX'):
+            p = l.split()
+            res[p[1]] = tuple(int(v) / U for v in p[2:6])
+    return res

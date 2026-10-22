@@ -152,14 +152,14 @@ c.write()
 c = Cell('afe', [('vin', 'in'), ('vout', 'out'), ('vdd', 'io'), ('vss', 'io'), ('vbp', 'in'), ('vref', 'in'), ('rst', 'in')],
          'Capacitive-feedback EEG amplifier core',
          ['Gain = C1/C2 = 77.8 V/V. C1, C1p: 9 x (25.6 um)^2 MIM units = 11.95 pF. C2, C2p: 8.6 um square = 154 fF.',
-          'MIM bottom plate (met3) goes on the low-impedance side: vin for C1, vss for C1p, vout for C2, vref for C2p.',
+          'MIM pins: c0 = top plate (capm/met4), c1 = bottom plate (met3, on the low-impedance node): vin, vss, vout, vref.',
           'SW1/SW2: reset switches driven by rst (ui_in[0]).'])
-c.mim('C1', 150, -250, 'vin', 'inn', 25.6, 25.6, 9)
+c.mim('C1', 150, -250, 'inn', 'vin', 25.6, 25.6, 9)
 c.mim('C2', 400, -400, 'inn', 'vout', 8.6, 8.6)
 c.sub('pseudo_r', 'XPR1', 650, -400, {'a': 'inn', 'b': 'vout', 'rst': 'rst', 'vss': 'vss'})
 c.mos('nfet', 'SW1', 950, -400, 'inn', 'rst', 'vout', 'vss', 0.42, 0.15)
 c.sub('ota', 'XA1', 500, -120, {'inn': 'inn', 'inp': 'inp', 'out': 'vout', 'vdd': 'vdd', 'vss': 'vss', 'vbp': 'vbp'})
-c.mim('C1p', 150, 150, 'vss', 'inp', 25.6, 25.6, 9)
+c.mim('C1p', 150, 150, 'inp', 'vss', 25.6, 25.6, 9)
 c.mim('C2p', 400, 200, 'inp', 'vref', 8.6, 8.6)
 c.sub('pseudo_r', 'XPR2', 650, 200, {'a': 'inp', 'b': 'vref', 'rst': 'rst', 'vss': 'vss'})
 c.mos('nfet', 'SW2', 950, 200, 'inp', 'rst', 'vref', 'vss', 0.42, 0.15)

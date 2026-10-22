@@ -1,0 +1,18 @@
+.subckt bias vdd vss vbp vref
+*.PININFO vdd:B vss:B vbp:O vref:O
+XM11 vbp vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=1
+XM12 vbn vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=1
+XM9 vbp vbn rs vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=8
+XM10 vbn vbn vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=2
+XRS vss rs vss sky130_fd_pr__res_xhigh_po_0p35 L=16 mult=1 m=1
+XMS1a x vss s1a vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1b s1a vss s1b vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1c s1b vss s1c vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1d s1c vss s1d vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1e s1d vss s1e vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1f s1e vss vdd vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS2 x vbn vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=2
+XMS3 vbp x vss vss sky130_fd_pr__nfet_01v8 L=2 W=0.42 nf=1 m=1
+XMR1 vref vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=1
+XMR2 vref vref vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=6
+.ends

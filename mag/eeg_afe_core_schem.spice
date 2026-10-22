@@ -1,0 +1,60 @@
+.subckt pseudo_r a b rst vss
+*.PININFO a:B b:B rst:I vss:B
+XMa1 m1 m1 a a sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 m=1
+XMb1 m1 m1 n1 n1 sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 m=1
+XMa2 m2 m2 n1 n1 sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 m=1
+XMb2 m2 m2 b b sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 m=1
+XS1 m1 rst a vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 m=1
+XS2 n1 rst a vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 m=1
+XS3 m2 rst a vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 m=1
+.ends
+
+.subckt ota inn inp out vdd vss vbp z
+*.PININFO inn:I inp:I out:O vdd:B vss:B vbp:I
+XM5 t vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=8
+XM1 d1 inn t t sky130_fd_pr__pfet_01v8 L=8 W=5 nf=1 m=30
+XM2 y inp t t sky130_fd_pr__pfet_01v8 L=8 W=5 nf=1 m=30
+XM3a d1 d1 s3 vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 m=1
+XM3b s3 d1 s3c vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 m=1
+XM3c s3c d1 vss vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 m=1
+XM4a y d1 s4 vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 m=1
+XM4b s4 d1 s4c vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 m=1
+XM4c s4c d1 vss vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 m=1
+XM7 out vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=20
+XM6 out y vss vss sky130_fd_pr__nfet_01v8 L=2 W=5 nf=1 m=4
+XRz z y vss sky130_fd_pr__res_xhigh_po_0p35 L=3.3 mult=1 m=1
+.ends
+
+.subckt bias vdd vss vbp vref
+*.PININFO vdd:B vss:B vbp:O vref:O
+XM11 vbp vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=1
+XM12 vbn vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=1
+XM9 vbp vbn rs vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=8
+XM10 vbn vbn vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=2
+XRS vss rs vss sky130_fd_pr__res_xhigh_po_0p35 L=16 mult=1 m=1
+XMS1a x vss s1a vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1b s1a vss s1b vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1c s1b vss s1c vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1d s1c vss s1d vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1e s1d vss s1e vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS1f s1e vss vdd vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 m=1
+XMS2 x vbn vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=2
+XMS3 vbp x vss vss sky130_fd_pr__nfet_01v8 L=2 W=0.42 nf=1 m=1
+XMR1 vref vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 m=1
+XMR2 vref vref vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 m=6
+.ends
+
+.subckt eeg_afe_core ua0 ua1 rst vdd vss
+XBIAS vdd vss vbp vref bias
+XC1 inn ua0 sky130_fd_pr__cap_mim_m3_1 W=25.6 L=25.6 m=9
+XC2 inn ua1 sky130_fd_pr__cap_mim_m3_1 W=8.6 L=8.6 m=1
+XPR1 inn ua1 rst vss pseudo_r
+XSW1 inn rst ua1 vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 m=1
+XA1 inn inp ua1 vdd vss vbp z ota
+XC1p inp vss sky130_fd_pr__cap_mim_m3_1 W=25.6 L=25.6 m=9
+XC2p inp vref sky130_fd_pr__cap_mim_m3_1 W=8.6 L=8.6 m=1
+XPR2 inp vref rst vss pseudo_r
+XSW2 inp rst vref vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 m=1
+XCc z ua1 sky130_fd_pr__cap_mim_m3_1 W=22.25 L=22.25 m=2
+XCREF vref vss sky130_fd_pr__cap_mim_m3_1 W=22.25 L=22.25 m=2
+.ends

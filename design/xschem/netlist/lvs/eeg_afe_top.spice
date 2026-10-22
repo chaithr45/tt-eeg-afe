@@ -39,12 +39,12 @@ XCREF vref vss sky130_fd_pr__cap_mim_m3_1 W=22.25 L=22.25 m=2
 ** sch_path: /home/claude/tt-eeg-afe/design/xschem/afe.sch
 .subckt afe vin vout vdd vss vbp vref rst
 *.PININFO vin:I vout:O vdd:B vss:B vbp:I vref:I rst:I
-XC1 vin inn sky130_fd_pr__cap_mim_m3_1 W=25.6 L=25.6 m=9
+XC1 inn vin sky130_fd_pr__cap_mim_m3_1 W=25.6 L=25.6 m=9
 XC2 inn vout sky130_fd_pr__cap_mim_m3_1 W=8.6 L=8.6 m=1
 XPR1 inn vout rst vss pseudo_r
 XSW1 inn rst vout vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 m=1
 XA1 inn inp vout vdd vss vbp ota
-XC1p vss inp sky130_fd_pr__cap_mim_m3_1 W=25.6 L=25.6 m=9
+XC1p inp vss sky130_fd_pr__cap_mim_m3_1 W=25.6 L=25.6 m=9
 XC2p inp vref sky130_fd_pr__cap_mim_m3_1 W=8.6 L=8.6 m=1
 XPR2 inp vref rst vss pseudo_r
 XSW2 inp rst vref vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 m=1

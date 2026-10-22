@@ -153,6 +153,11 @@ def build(name='ota'):
     c.label('vbp', 'metal3', X_VBP - 0.2, ytop - 0.4, X_VBP + 0.2, ytop, port=6)
     c.via1(cx(r2), cy(r2))
     c.label('z', 'metal1', cx(r2) - 0.1, cy(r2) - 0.1, cx(r2) + 0.1, cy(r2) + 0.1, port=7)
+    gA = [cy(d.term('G')) for ab, d in P if ab == 'A']
+    gB = [cy(d.term('G')) for ab, d in P if ab == 'B']
+    c.ports = dict(inn=(X_INN, min(gA), yinn), inp=(X_INP, min(gB), yinp), out=(X_OUT, yD6, yD7),
+                   vdd=(X_VDD, M7a.y - 1.0, M5.y + 2.0), vbp=(X_VBP, cy(M7a.term('G')), cy(M5.term('G')) + 2.0),
+                   vss=(-2.0, yS6), z=(cx(r2), cy(r2)), z_m1=r2)
     return c
 
 if __name__ == '__main__':

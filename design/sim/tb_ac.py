@@ -4,6 +4,7 @@ The pseudo-resistors are replaced by their small-signal equivalent (pseudo_r_lin
 1.3e13 ohm resistor with thermal noise) for these runs; the full MOS pseudo-resistor is
 used in the transient testbench (tb_tran.py)."""
 import numpy as np
+_trapz = getattr(np, 'trapezoid', None) or np.trapz   # numpy 2.x / 1.x
 import spice
 
 REAL_BIAS = 'XB vdd 0 vbp vref bias'
@@ -55,7 +56,7 @@ wrdata nz.txt inoise_spectrum onoise_spectrum
     n = spice.load('nz.txt'); fn = n[:, 0]; vin = n[:, 1]
     def integ(a, b):
         m = (fn >= a) & (fn <= b)
-        return np.sqrt(np.trapezoid(vin[m] ** 2, fn[m]))
+        return np.sqrt(_trapz(vin[m] ** 2, fn[m]))
     res = dict(gain_db=gm, f_lo=f[band[0]], f_hi=f[band[-1]], n_05_100=integ(0.5, 100) * 1e6,
                n_05_70=integ(0.5, 70) * 1e6, d10=vin[np.argmin(abs(fn - 10))] * 1e9,
                idd=-op.get('i(vdd)', np.nan) * 1e6, op=op, f=f, g=g, ph=ph, fn=fn, vin=vin)

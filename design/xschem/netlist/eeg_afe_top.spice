@@ -1,4 +1,4 @@
-** sch_path: /home/claude/eeg_frontend/xschem/eeg_afe_top.sch
+** sch_path: /home/claude/tt-eeg-afe/design/xschem/eeg_afe_top.sch
 .subckt eeg_afe_top ua0 ua1 rst vdd vss
 *.PININFO ua0:B ua1:B rst:I vdd:B vss:B
 XBIAS vdd vss vbp vref bias
@@ -11,8 +11,8 @@ XAFE ua0 ua1 vdd vss vbp vref rst afe
 .ends
 
 * expanding   symbol:  bias.sym # of pins=4
-** sym_path: /home/claude/eeg_frontend/xschem/bias.sym
-** sch_path: /home/claude/eeg_frontend/xschem/bias.sch
+** sym_path: /home/claude/tt-eeg-afe/design/xschem/bias.sym
+** sch_path: /home/claude/tt-eeg-afe/design/xschem/bias.sch
 .subckt bias vdd vss vbp vref
 *.PININFO vdd:B vss:B vbp:O vref:O
 XM11 vbp vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725
@@ -44,13 +44,13 @@ XMR1 vref vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.
 + nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0 mult=1 m=1
 XMR2 vref vref vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58
 + nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=6 m=6
-XCREF vref vss sky130_fd_pr__cap_mim_m3_1 W=31.45 L=31.45 MF=1 m=1
+XCREF vref vss sky130_fd_pr__cap_mim_m3_1 W=22.25 L=22.25 MF=2 m=2
 .ends
 
 
 * expanding   symbol:  afe.sym # of pins=7
-** sym_path: /home/claude/eeg_frontend/xschem/afe.sym
-** sch_path: /home/claude/eeg_frontend/xschem/afe.sch
+** sym_path: /home/claude/tt-eeg-afe/design/xschem/afe.sym
+** sch_path: /home/claude/tt-eeg-afe/design/xschem/afe.sch
 .subckt afe vin vout vdd vss vbp vref rst
 *.PININFO vin:I vout:O vdd:B vss:B vbp:I vref:I rst:I
 XC1 vin inn sky130_fd_pr__cap_mim_m3_1 W=25.6 L=25.6 MF=9 m=9
@@ -68,8 +68,8 @@ XSW2 inp rst vref vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad=0.1218 as=0.
 
 
 * expanding   symbol:  pseudo_r.sym # of pins=4
-** sym_path: /home/claude/eeg_frontend/xschem/pseudo_r.sym
-** sch_path: /home/claude/eeg_frontend/xschem/pseudo_r.sch
+** sym_path: /home/claude/tt-eeg-afe/design/xschem/pseudo_r.sym
+** sch_path: /home/claude/tt-eeg-afe/design/xschem/pseudo_r.sch
 .subckt pseudo_r a b rst vss
 *.PININFO a:B b:B rst:I vss:B
 XMa1 m1 m1 a a sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42
@@ -90,8 +90,8 @@ XS3 m2 rst a vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad=0.1218 as=0.1218 
 
 
 * expanding   symbol:  ota.sym # of pins=6
-** sym_path: /home/claude/eeg_frontend/xschem/ota.sym
-** sch_path: /home/claude/eeg_frontend/xschem/ota.sch
+** sym_path: /home/claude/tt-eeg-afe/design/xschem/ota.sym
+** sch_path: /home/claude/tt-eeg-afe/design/xschem/ota.sch
 .subckt ota inn inp out vdd vss vbp
 *.PININFO inn:I inp:I out:O vdd:B vss:B vbp:I
 XM5 t vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725
@@ -117,7 +117,7 @@ XM7 out vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58
 XM6 out y vss vss sky130_fd_pr__nfet_01v8 L=2 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058
 + nrs=0.058 sa=0 sb=0 sd=0 mult=4 m=4
 XRz z y vss sky130_fd_pr__res_xhigh_po_0p35 L=3.3 mult=1 m=1
-XCc z out sky130_fd_pr__cap_mim_m3_1 W=31.45 L=31.45 MF=1 m=1
+XCc z out sky130_fd_pr__cap_mim_m3_1 W=22.25 L=22.25 MF=2 m=2
 .ends
 
 .end

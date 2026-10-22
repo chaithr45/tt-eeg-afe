@@ -9,7 +9,7 @@ T {Bias generator, start-up and VREF} -260 -620 0 0 0.6 0.6 {}
 T {Subthreshold beta-multiplier: I = n*UT*ln(K)/Rs = 0.5 uA (K = 4, Rs = 92 kOhm xhigh_po, L = 16 um).} -260 -580 0 0 0.3 0.3 {}
 T {Start-up: MS1 (6 x 0.6/20 PMOS in series) pulls x high when no current flows; MS3 then pulls vbp low; MS2 releases it.} -260 -555 0 0 0.3 0.3 {}
 T {MS1 is 0.6 um wide: the 0.42/20 um PMOS bin of the SKY130 continuous (combined) models fails in the ss corner (Pclm < 0).} -260 -530 0 0 0.3 0.3 {}
-T {VREF = Vgs of MR2 (6 x 7/1 NMOS) at one 0.5 uA unit, about 0.45 V. CREF = 2 pF MIM, bottom plate on vss.} -260 -505 0 0 0.3 0.3 {}
+T {VREF = Vgs of MR2 (6 x 7/1 NMOS) at one 0.5 uA unit, about 0.45 V. CREF = 2 x (22.25 um)^2 MIM = 2 pF, bottom plate on vss.} -260 -505 0 0 0.3 0.3 {}
 C {iopin.sym} -240 -400 0 0 {name=p1 lab=vdd}
 C {iopin.sym} -240 -360 0 0 {name=p2 lab=vss}
 C {opin.sym} -240 -320 0 0 {name=p3 lab=vbp}
@@ -88,6 +88,6 @@ C {lab_pin.sym} 1370 -130 0 1 {name=l56 sig_type=std_logic lab=vref}
 C {lab_pin.sym} 1330 -100 0 0 {name=l57 sig_type=std_logic lab=vref}
 C {lab_pin.sym} 1370 -70 0 1 {name=l58 sig_type=std_logic lab=vss}
 C {lab_pin.sym} 1370 -100 0 1 {name=l59 sig_type=std_logic lab=vss}
-C {sky130_fd_pr/cap_mim_m3_1.sym} 1600 -150 0 0 {name=CREF model=tcleval($::MIM_MODEL) W=31.45 L=31.45 MF=1 spiceprefix=X}
+C {sky130_fd_pr/cap_mim_m3_1.sym} 1600 -150 0 0 {name=CREF model=tcleval($::MIM_MODEL) W=22.25 L=22.25 MF=2 spiceprefix=X}
 C {lab_pin.sym} 1600 -180 0 1 {name=l60 sig_type=std_logic lab=vref}
 C {lab_pin.sym} 1600 -120 0 1 {name=l61 sig_type=std_logic lab=vss}

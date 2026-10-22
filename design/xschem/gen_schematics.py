@@ -120,7 +120,7 @@ c = Cell('ota', [('inn', 'in'), ('inp', 'in'), ('out', 'out'), ('vdd', 'io'), ('
          'Two-stage Miller OTA (PMOS input)',
          ['M3/M4: three 7/20 um NMOS in series (effective L = 60 um) for low 1/f noise.',
           'Current sources use the 4/2 um PMOS unit cell matched to the bias diode (0.5 uA per unit).',
-          'Rz = res_xhigh_po_0p35 L = 3.3 um (about 20 kOhm). Cc = 2 pF MIM: put its bottom plate (met3) on node out.'])
+          'Rz = res_xhigh_po_0p35 L = 3.3 um (about 20 kOhm). Cc = 2 pF = 2 x (22.25 um)^2 MIM (max MIM side is 30 um); bottom plate (met3) on node out.'])
 c.mos('pfet', 'M5', 300, -300, 't', 'vbp', 'vdd', 'vdd', 4, 2, 8)
 c.mos('pfet', 'M1', 150, -150, 'd1', 'inn', 't', 't', 5, 8, 30)
 c.mos('pfet', 'M2', 450, -150, 'y', 'inp', 't', 't', 5, 8, 30)
@@ -131,7 +131,7 @@ for i, (sd, ss) in enumerate((('y', 's4'), ('s4', 's4c'), ('s4c', 'vss'))):
 c.mos('pfet', 'M7', 950, -300, 'out', 'vbp', 'vdd', 'vdd', 4, 2, 20)
 c.mos('nfet', 'M6', 950, 150, 'out', 'y', 'vss', 'vss', 5, 2, 4)
 c.rxh('Rz', 680, -40, 'y', 'z', 'vss', 3.3)
-c.mim('Cc', 800, -40, 'z', 'out', 31.45, 31.45)
+c.mim('Cc', 800, -40, 'z', 'out', 22.25, 22.25, 2)
 c.write()
 
 # ---------------------------------------------------------------- pseudo-resistor
@@ -171,7 +171,7 @@ c = Cell('bias', [('vdd', 'io'), ('vss', 'io'), ('vbp', 'out'), ('vref', 'out')]
          ['Subthreshold beta-multiplier: I = n*UT*ln(K)/Rs = 0.5 uA (K = 4, Rs = 92 kOhm xhigh_po, L = 16 um).',
           'Start-up: MS1 (6 x 0.6/20 PMOS in series) pulls x high when no current flows; MS3 then pulls vbp low; MS2 releases it.',
           'MS1 is 0.6 um wide: the 0.42/20 um PMOS bin of the SKY130 continuous (combined) models fails in the ss corner (Pclm < 0).',
-          'VREF = Vgs of MR2 (6 x 7/1 NMOS) at one 0.5 uA unit, about 0.45 V. CREF = 2 pF MIM, bottom plate on vss.'])
+          'VREF = Vgs of MR2 (6 x 7/1 NMOS) at one 0.5 uA unit, about 0.45 V. CREF = 2 x (22.25 um)^2 MIM = 2 pF, bottom plate on vss.'])
 c.mos('pfet', 'M11', 150, -300, 'vbp', 'vbp', 'vdd', 'vdd', 4, 2)
 c.mos('pfet', 'M12', 450, -300, 'vbn', 'vbp', 'vdd', 'vdd', 4, 2)
 c.mos('nfet', 'M9', 150, -100, 'vbp', 'vbn', 'rs', 'vss', 7, 1, 8)
@@ -184,7 +184,7 @@ c.mos('nfet', 'MS2', 750, 300, 'x', 'vbn', 'vss', 'vss', 7, 1, 2)
 c.mos('nfet', 'MS3', 1130, 150, 'vbp', 'x', 'vss', 'vss', 0.42, 2)
 c.mos('pfet', 'MR1', 1350, -300, 'vref', 'vbp', 'vdd', 'vdd', 4, 2)
 c.mos('nfet', 'MR2', 1350, -100, 'vref', 'vref', 'vss', 'vss', 7, 1, 6)
-c.mim('CREF', 1600, -150, 'vref', 'vss', 31.45, 31.45)
+c.mim('CREF', 1600, -150, 'vref', 'vss', 22.25, 22.25, 2)
 c.write()
 
 # ---------------------------------------------------------------- top

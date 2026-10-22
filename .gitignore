@@ -9,3 +9,14 @@ test/sim_build
 test/__pycache__/
 test/results.xml
 test/gate_level_netlist.v
+
+# layout scratch (scripts regenerate these)
+mag/_*
+mag/*.ext
+mag/*_lvs.spice
+mag/*_pex.spice
+mag/lvs_*.log
+mag/*.sim
+mag/*.nodes
+layout/__pycache__/
+__pycache__/

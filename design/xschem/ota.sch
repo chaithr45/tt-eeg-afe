@@ -8,7 +8,7 @@ E {}
 T {Two-stage Miller OTA (PMOS input)} -260 -620 0 0 0.6 0.6 {}
 T {M3/M4: three 7/20 um NMOS in series (effective L = 60 um) for low 1/f noise.} -260 -580 0 0 0.3 0.3 {}
 T {Current sources use the 4/2 um PMOS unit cell matched to the bias diode (0.5 uA per unit).} -260 -555 0 0 0.3 0.3 {}
-T {Rz = res_xhigh_po_0p35 L = 3.3 um (about 20 kOhm). Cc = 2 pF MIM: put its bottom plate (met3) on node out.} -260 -530 0 0 0.3 0.3 {}
+T {Rz = res_xhigh_po_0p35 L = 3.3 um (about 20 kOhm). Cc = 2 pF = 2 x (22.25 um)^2 MIM (max MIM side is 30 um); bottom plate (met3) on node out.} -260 -530 0 0 0.3 0.3 {}
 C {ipin.sym} -240 -400 0 0 {name=p1 lab=inn}
 C {ipin.sym} -240 -360 0 0 {name=p2 lab=inp}
 C {opin.sym} -240 -320 0 0 {name=p3 lab=out}
@@ -74,6 +74,6 @@ C {sky130_fd_pr/res_xhigh_po_0p35.sym} 680 -40 0 0 {name=Rz L=3.3 model=res_xhig
 C {lab_pin.sym} 680 -70 0 1 {name=l45 sig_type=std_logic lab=y}
 C {lab_pin.sym} 680 -10 0 1 {name=l46 sig_type=std_logic lab=z}
 C {lab_pin.sym} 660 -40 0 0 {name=l47 sig_type=std_logic lab=vss}
-C {sky130_fd_pr/cap_mim_m3_1.sym} 800 -40 0 0 {name=Cc model=tcleval($::MIM_MODEL) W=31.45 L=31.45 MF=1 spiceprefix=X}
+C {sky130_fd_pr/cap_mim_m3_1.sym} 800 -40 0 0 {name=Cc model=tcleval($::MIM_MODEL) W=22.25 L=22.25 MF=2 spiceprefix=X}
 C {lab_pin.sym} 800 -70 0 1 {name=l48 sig_type=std_logic lab=z}
 C {lab_pin.sym} 800 -10 0 1 {name=l49 sig_type=std_logic lab=out}

@@ -1,0 +1,38 @@
+* Neonatal EEG front-end core: capacitive-feedback amplifier
+* ports: vin vout vdd vss vbp vref
+.subckt pseudo_r a b rst vss
+* two back-to-back pairs in series; each PMOS bulk tied to its outer node
+XMa1 m1 m1 a  a  sky130_fd_pr__pfet_01v8 W=0.42 L=1 nf=1
+XMb1 m1 m1 n1 n1 sky130_fd_pr__pfet_01v8 W=0.42 L=1 nf=1
+XMa2 m2 m2 n1 n1 sky130_fd_pr__pfet_01v8 W=0.42 L=1 nf=1
+XMb2 m2 m2 b  b  sky130_fd_pr__pfet_01v8 W=0.42 L=1 nf=1
+* reset: tie the internal (floating-well) nodes to node a so the chain restarts at zero bias
+XS1  m1 rst a vss sky130_fd_pr__nfet_01v8 W=0.42 L=0.15 nf=1
+XS2  n1 rst a vss sky130_fd_pr__nfet_01v8 W=0.42 L=0.15 nf=1
+XS3  m2 rst a vss sky130_fd_pr__nfet_01v8 W=0.42 L=0.15 nf=1
+.ends pseudo_r
+
+* Small-signal equivalent of pseudo_r for AC/noise/DC: at zero bias a subthreshold
+* MOS pseudo-resistor is a linear conductance with thermal (4kT/R) noise.
+* R = 1.3e13 ohm measured from the MOS model at 27 C (see pr_char results).
+.subckt pseudo_r_lin a b rst vss
+Rpr a b 1.3e13
+.ends pseudo_r_lin
+
+.subckt afe vin vout vdd vss vbp vref rst
+* input coupling C1 (11.91 pF) and feedback C2 (153.6 fF): gain ~ 77.5 V/V
+* MIM caps simulated as ideal C (values from cap_mim_m3_1 W=L=77 and W=L=8.6);
+* the PDK MIM model's milliohm series resistors make TOhm nodes numerically ill-conditioned in DC
+C1  vin  inn  11.91p
+C2  inn  vout 153.6f
+XPR1 inn  vout rst vss pseudo_r
+* reference side: C1' to ground, C2' and PR2 to VREF
+C1p vss  inp  11.91p
+C2p inp  vref 153.6f
+XPR2 inp  vref rst vss pseudo_r
+XA1  inn inp vout vdd vss vbp ota
+* fast-settle reset: minimum NMOS switches across the pseudo-resistors, driven by a
+* digital input (rst = ui_in[0], active high). Nodes sit near 0.45 V, so NMOS alone conducts.
+XSW1 inn  rst vout vss sky130_fd_pr__nfet_01v8 W=0.42 L=0.15 nf=1
+XSW2 inp  rst vref vss sky130_fd_pr__nfet_01v8 W=0.42 L=0.15 nf=1
+.ends afe

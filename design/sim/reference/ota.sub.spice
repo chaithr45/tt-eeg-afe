@@ -1,0 +1,22 @@
+* Two-stage Miller OTA, PMOS input, SKY130 1.8 V devices
+* ports: inn inp out vdd vss vbp
+* - every device stays inside the SKY130 model bins (W per finger <= 7 um, L <= 20 um)
+* - wide devices are built from parallel unit fingers (multiplier m)
+* - the NMOS mirror load M3/M4 is a 3-device series stack (effective L = 60 um) to cut 1/f noise
+* - current sources use a 4/2 PMOS unit cell matched to the bias diode (0.5 uA per unit)
+.subckt ota inn inp out vdd vss vbp
++ W1=5 L1=8 M1=30 W3=7 L3=20 M5=8 M7=20 WU=4 LU=2 W6=5 L6=2 M6=4 CC=2 RZ=20k
+XM5  t   vbp vdd vdd sky130_fd_pr__pfet_01v8 W={WU} L={LU} nf=1 m={M5}
+XM1  d1  inn t   t   sky130_fd_pr__pfet_01v8 W={W1} L={L1} nf=1 m={M1}
+XM2  y   inp t   t   sky130_fd_pr__pfet_01v8 W={W1} L={L1} nf=1 m={M1}
+XM3a d1  d1  s3  vss sky130_fd_pr__nfet_01v8 W={W3} L={L3} nf=1
+XM3b s3  d1  s3c vss sky130_fd_pr__nfet_01v8 W={W3} L={L3} nf=1
+XM3c s3c d1  vss vss sky130_fd_pr__nfet_01v8 W={W3} L={L3} nf=1
+XM4a y   d1  s4  vss sky130_fd_pr__nfet_01v8 W={W3} L={L3} nf=1
+XM4b s4  d1  s4c vss sky130_fd_pr__nfet_01v8 W={W3} L={L3} nf=1
+XM4c s4c d1  vss vss sky130_fd_pr__nfet_01v8 W={W3} L={L3} nf=1
+XM6  out y   vss vss sky130_fd_pr__nfet_01v8 W={W6} L={L6} nf=1 m={M6}
+XM7  out vbp vdd vdd sky130_fd_pr__pfet_01v8 W={WU} L={LU} nf=1 m={M7}
+Rz   y   z   {RZ}
+Cc   z   out {CC*1e-12}
+.ends ota

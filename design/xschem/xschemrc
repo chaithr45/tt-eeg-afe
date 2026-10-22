@@ -1,0 +1,27 @@
+# Xschem setup for this project (always SKY130, whatever PDK the container defaults to).
+# Inside IIC-OSIC-TOOLS: the SKY130 PDK xschemrc is loaded first (symbols, menus), then the model
+# path is forced to sky130A, because the container's default PDK (IHP sg13g2) would otherwise leak in.
+if {[info exists env(PDK_ROOT)]} { set pdk_root $env(PDK_ROOT) } else { set pdk_root /foss/pdks }
+if {[file exists $pdk_root/sky130A/libs.tech/xschem/xschemrc]} {
+  set ::env(PDK_ROOT) $pdk_root
+  set ::env(PDK) sky130A
+  set PDK_ROOT $pdk_root
+  set PDK sky130A
+  source $pdk_root/sky130A/libs.tech/xschem/xschemrc
+  # model library: libs.tech/combined (new open_pdks) or libs.tech/ngspice (older)
+  foreach d [list $pdk_root/sky130A/libs.tech/combined $pdk_root/sky130A/libs.tech/ngspice] {
+    if {[file exists $d/sky130.lib.spice]} { set SKYWATER_MODELS $d; break }
+  }
+} else {
+  # stand-alone: xschem devices + a local clone of xschem_sky130 (dev machine)
+  set XSCHEM_LIBRARY_PATH {}
+  append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
+  append XSCHEM_LIBRARY_PATH :/home/claude/pdk/xschem_sky130
+  set SKYWATER_MODELS /home/claude/pdk/mini_models
+}
+# this project's schematics and symbols
+append XSCHEM_LIBRARY_PATH :[file dirname [file normalize [info script]]]
+set netlist_dir [file dirname [file normalize [info script]]]/netlist
+
+# MIM capacitor model used by the design schematics (the testbench overrides it with cap_mim_m3_1_ideal)
+set MIM_MODEL cap_mim_m3_1

@@ -1,0 +1,29 @@
+** sch_path: /home/claude/eeg_frontend/xschem/ota.sch
+.subckt ota inn inp out vdd vss vbp
+*.PININFO inn:I inp:I out:O vdd:B vss:B vbp:I
+XM5 t vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725
++ nrs=0.0725 sa=0 sb=0 sd=0 mult=8 m=8
+XM1 d1 inn t t sky130_fd_pr__pfet_01v8 L=8 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058
++ nrs=0.058 sa=0 sb=0 sd=0 mult=30 m=30
+XM2 y inp t t sky130_fd_pr__pfet_01v8 L=8 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058
++ nrs=0.058 sa=0 sb=0 sd=0 mult=30 m=30
+XM3a d1 d1 s3 vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58
++ nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM3b s3 d1 s3c vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58
++ nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM3c s3c d1 vss vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58
++ nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM4a y d1 s4 vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58
++ nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM4b s4 d1 s4c vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58
++ nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM4c s4c d1 vss vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58
++ nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM7 out vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725
++ nrs=0.0725 sa=0 sb=0 sd=0 mult=20 m=20
+XM6 out y vss vss sky130_fd_pr__nfet_01v8 L=2 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058
++ nrs=0.058 sa=0 sb=0 sd=0 mult=4 m=4
+XRz z y vss sky130_fd_pr__res_xhigh_po_0p35 L=3.3 mult=1 m=1
+XCc z out sky130_fd_pr__cap_mim_m3_1_ideal W=31.45 L=31.45 MF=1 m=1
+.ends
+.end

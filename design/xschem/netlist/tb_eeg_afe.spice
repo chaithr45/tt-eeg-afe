@@ -1,0 +1,151 @@
+** sch_path: /home/claude/eeg_frontend/xschem/tb_eeg_afe.sch
+**.subckt tb_eeg_afe
+XTOP ua0 ua1 rst vdd 0 eeg_afe_top
+VDD vdd 0 PWL(0 0 100u 1.8)
+VIN src 0 SIN(0 100u 10 20m)
+RSW1 src ua0 500 m=1
+CP1 ua0 0 5p m=1
+VRST rst 0 PWL(0 0 50u 0 60u 1.8 10m 1.8 10.01m 0)
+RSW2 ua1 pad 500 m=1
+CL pad 0 15p m=1
+RL pad 0 1meg m=1
+**** begin user architecture code
+.lib /home/claude/pdk/mini_models/sky130.lib.spice tt
+
+* MIM capacitors: ideal C fitted to the PDK model (<0.1 % error), cap_mim_m3_1_ideal
+* The PDK model's milliohm series resistors make transient runs ~200x slower. LVS netlists use the PDK model.
+.subckt sky130_fd_pr__cap_mim_m3_1_ideal c0 c1 w=1 l=1 mf=1
+C1 c0 c1 {2.0e-15*w*l + 0.336e-15*(w+l)}
+.ends
+
+
+
+* gmin/abstol: the default gmin=1e-12 adds ~1 Tohm of fake leakage at the 1e13-ohm nodes
+.option gmin=1e-15 abstol=1e-15 klu
+.temp 27
+.ic v(xtop.xafe.inn)=0.45 v(xtop.xafe.inp)=0.45 v(ua1)=0.45
+.control
+  save v(ua0) v(ua1) v(pad) v(rst) v(vdd) v(xtop.vref) v(xtop.vbp) i(vdd)
+  * tmax = 2 us: coarser steps give a false output jump when rst is released
+  tran 1u 0.25 0 2u uic
+  write tb_eeg_afe.raw
+  meas tran vref_dc avg v(xtop.vref) from=0.15 to=0.25
+  meas tran iddq avg i(vdd) from=0.15 to=0.25
+  meas tran vpp_out pp v(pad) from=0.15 to=0.25
+  meas tran vpp_in pp v(ua0) from=0.15 to=0.25
+  let gain = vpp_out / vpp_in
+  print gain
+  plot v(pad) v(xtop.vref)
+.endc
+
+**** end user architecture code
+**.ends
+
+* expanding   symbol:  eeg_afe_top.sym # of pins=5
+** sym_path: /home/claude/eeg_frontend/xschem/eeg_afe_top.sym
+** sch_path: /home/claude/eeg_frontend/xschem/eeg_afe_top.sch
+.subckt eeg_afe_top ua0 ua1 rst vdd vss
+*.iopin ua0
+*.iopin ua1
+*.ipin rst
+*.iopin vdd
+*.iopin vss
+XBIAS vdd vss vbp vref bias
+XAFE ua0 ua1 vdd vss vbp vref rst afe
+.ends
+
+
+* expanding   symbol:  bias.sym # of pins=4
+** sym_path: /home/claude/eeg_frontend/xschem/bias.sym
+** sch_path: /home/claude/eeg_frontend/xschem/bias.sch
+.subckt bias vdd vss vbp vref
+*.iopin vdd
+*.iopin vss
+*.opin vbp
+*.opin vref
+XM11 vbp vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0 mult=1 m=1
+XM12 vbn vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0 mult=1 m=1
+XM9 vbp vbn rs vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=8 m=8
+XM10 vbn vbn vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=2 m=2
+XRS vss rs vss sky130_fd_pr__res_xhigh_po_0p35 L=16 mult=1 m=1
+XMS1a x vss s1a vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 ad=0.174 as=0.174 pd=1.78 ps=1.78 nrd=0.483333 nrs=0.483333 sa=0 sb=0 sd=0 mult=1 m=1
+XMS1b s1a vss s1b vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 ad=0.174 as=0.174 pd=1.78 ps=1.78 nrd=0.483333 nrs=0.483333 sa=0 sb=0 sd=0 mult=1 m=1
+XMS1c s1b vss s1c vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 ad=0.174 as=0.174 pd=1.78 ps=1.78 nrd=0.483333 nrs=0.483333 sa=0 sb=0 sd=0 mult=1 m=1
+XMS1d s1c vss s1d vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 ad=0.174 as=0.174 pd=1.78 ps=1.78 nrd=0.483333 nrs=0.483333 sa=0 sb=0 sd=0 mult=1 m=1
+XMS1e s1d vss s1e vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 ad=0.174 as=0.174 pd=1.78 ps=1.78 nrd=0.483333 nrs=0.483333 sa=0 sb=0 sd=0 mult=1 m=1
+XMS1f s1e vss vdd vdd sky130_fd_pr__pfet_01v8 L=20 W=0.6 nf=1 ad=0.174 as=0.174 pd=1.78 ps=1.78 nrd=0.483333 nrs=0.483333 sa=0 sb=0 sd=0 mult=1 m=1
+XMS2 x vbn vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=2 m=2
+XMS3 vbp x vss vss sky130_fd_pr__nfet_01v8 L=2 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XMR1 vref vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0 mult=1 m=1
+XMR2 vref vref vss vss sky130_fd_pr__nfet_01v8 L=1 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=6 m=6
+XCREF vref vss sky130_fd_pr__cap_mim_m3_1_ideal W=31.45 L=31.45 MF=1 m=1
+.ends
+
+
+* expanding   symbol:  afe.sym # of pins=7
+** sym_path: /home/claude/eeg_frontend/xschem/afe.sym
+** sch_path: /home/claude/eeg_frontend/xschem/afe.sch
+.subckt afe vin vout vdd vss vbp vref rst
+*.ipin vin
+*.opin vout
+*.iopin vdd
+*.iopin vss
+*.ipin vbp
+*.ipin vref
+*.ipin rst
+XC1 vin inn sky130_fd_pr__cap_mim_m3_1_ideal W=25.6 L=25.6 MF=9 m=9
+XC2 inn vout sky130_fd_pr__cap_mim_m3_1_ideal W=8.6 L=8.6 MF=1 m=1
+XPR1 inn vout rst vss pseudo_r
+XSW1 inn rst vout vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XA1 inn inp vout vdd vss vbp ota
+XC1p vss inp sky130_fd_pr__cap_mim_m3_1_ideal W=25.6 L=25.6 MF=9 m=9
+XC2p inp vref sky130_fd_pr__cap_mim_m3_1_ideal W=8.6 L=8.6 MF=1 m=1
+XPR2 inp vref rst vss pseudo_r
+XSW2 inp rst vref vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+.ends
+
+
+* expanding   symbol:  pseudo_r.sym # of pins=4
+** sym_path: /home/claude/eeg_frontend/xschem/pseudo_r.sym
+** sch_path: /home/claude/eeg_frontend/xschem/pseudo_r.sch
+.subckt pseudo_r a b rst vss
+*.iopin a
+*.iopin b
+*.ipin rst
+*.iopin vss
+XMa1 m1 m1 a a sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XMb1 m1 m1 n1 n1 sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XMa2 m2 m2 n1 n1 sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XMb2 m2 m2 b b sky130_fd_pr__pfet_01v8 L=1 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XS1 m1 rst a vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XS2 n1 rst a vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+XS3 m2 rst a vss sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476 sa=0 sb=0 sd=0 mult=1 m=1
+.ends
+
+
+* expanding   symbol:  ota.sym # of pins=6
+** sym_path: /home/claude/eeg_frontend/xschem/ota.sym
+** sch_path: /home/claude/eeg_frontend/xschem/ota.sch
+.subckt ota inn inp out vdd vss vbp
+*.ipin inn
+*.ipin inp
+*.opin out
+*.iopin vdd
+*.iopin vss
+*.ipin vbp
+XM5 t vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0 mult=8 m=8
+XM1 d1 inn t t sky130_fd_pr__pfet_01v8 L=8 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0 mult=30 m=30
+XM2 y inp t t sky130_fd_pr__pfet_01v8 L=8 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0 mult=30 m=30
+XM3a d1 d1 s3 vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM3b s3 d1 s3c vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM3c s3c d1 vss vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM4a y d1 s4 vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM4b s4 d1 s4c vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM4c s4c d1 vss vss sky130_fd_pr__nfet_01v8 L=20 W=7 nf=1 ad=2.03 as=2.03 pd=14.58 ps=14.58 nrd=0.0414286 nrs=0.0414286 sa=0 sb=0 sd=0 mult=1 m=1
+XM7 out vbp vdd vdd sky130_fd_pr__pfet_01v8 L=2 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0 mult=20 m=20
+XM6 out y vss vss sky130_fd_pr__nfet_01v8 L=2 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0 mult=4 m=4
+XRz z y vss sky130_fd_pr__res_xhigh_po_0p35 L=3.3 mult=1 m=1
+XCc z out sky130_fd_pr__cap_mim_m3_1_ideal W=31.45 L=31.45 MF=1 m=1
+.ends
+
+.end

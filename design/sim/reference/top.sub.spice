@@ -1,0 +1,6 @@
+* Top level: Tiny Tapeout analog tile core (pads not included)
+* ua0 = EEG input, ua1 = amplified output, rst = digital fast-settle (ui_in[0], active high)
+.subckt eeg_afe_top ua0 ua1 rst vdd vss
+XBIAS vdd vss vbp vref bias
+XAFE  ua0 ua1 vdd vss vbp vref rst afe
+.ends eeg_afe_top

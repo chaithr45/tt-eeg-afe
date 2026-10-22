@@ -12,6 +12,10 @@ Simulated pre-layout on both SKY130 model sets (typical corner, 27 °C): 12–16
 
 ![Simulated closed-loop gain](gain.png)
 
+The layout (below) is DRC and LVS clean. Simulated with its extracted parasitic capacitances, the gain is within 0.05 dB of the schematic and the noise within 0.03 µVrms, at all five process corners and at 0 and 50 °C. The PSRR at 50 Hz is 81–91 dB.
+
+![Layout of the 1x2 tile: OTA and bias on the left, the C1 and C1' capacitor arrays on the right](layout.png)
+
 ## How to test
 
 1. Power the chip, select this project, and hold `ui_in[0]` high for at least 10 ms, then set it low.

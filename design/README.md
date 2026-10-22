@@ -1,7 +1,7 @@
 # Neonatal EEG Analog Front-End: SKY130 / Tiny Tapeout
 
-**Status:** design v1, Xschem schematics + testbench, simulated in ngspice on both SKY130 model sets (original binned and newer continuous). Layout has not started.
-**Next:** follow `docs/IMPLEMENTATION_GUIDE.md` (tools → schematics → verification → Tiny Tapeout repo → layout → post-layout → submit).
+**Status:** schematics, pre-layout verification and layout done. The layout (`../layout/`, scripted Magic) is DRC clean, matches the schematic in LVS, passes the Tiny Tapeout precheck, and the extracted layout simulates within 0.05 dB of the schematic gain with the same noise (§9).
+**Next:** review §9, then submit on app.tinytapeout.com (TTSKY26d, 1x2 analog tile) before 30 November.
 **Target:** Tiny Tapeout TTSKY26d, which closes on 30 November 2026. It uses a 1x2 analog tile with 2 analog pins and costs €220.
 
 The chip is a low-noise capacitive-feedback biopotential amplifier for neonatal EEG. It is the analog front-end for the FPGA neonatal-seizure detector on the KV260.
@@ -24,7 +24,7 @@ Results are typical corner, 27 °C, 1.8 V unless stated. "Corners" means 5 proce
 | Low-pass corner f_H | ≥ 100 Hz | 22–25 kHz | 18–20 kHz | ✓ |
 | Input-referred noise, 0.5–100 Hz | ≤ 4 µVrms (goal 3) | **2.93 µVrms**; ≤ 3.00 over corners | **3.05 µVrms**; ≤ 3.08 over corners; ≤ 3.11 up to 55 °C | ✓ |
 | Linear range | ≥ 1 mV input | THD 0.007 % at 1 mV, 0.19 % at 5 mV | 0.002 %, 0.24 % | ✓ |
-| PSRR at 50 Hz | ≥ 40 dB | 96.5 dB | 90.7 dB | ✓ |
+| PSRR at 50 Hz | ≥ 40 dB | 96.5 dB; layout 85.6 dB (81–87 over corners) | 90.7 dB; layout 90.3 dB (86–91) | ✓ |
 | Supply current | ≤ 20 µA | 15.7 µA (≈ 28 µW); 13.3–16.9 µA over corners | 12.2 µA; 10.9–12.9 µA | ✓ |
 | Bias unit current | 0.5 µA | 0.50 µA (0.43–0.62 µA, 0–70 °C); RS = 92 kΩ | 0.39 µA (0.35–0.45 µA); RS = 118 kΩ | ✓ |
 | Bias start-up from a supply ramp | always starts | 30/30 corner runs, settled < 0.1 ms, X < 20 mV | 30/30 | ✓ |
@@ -33,7 +33,8 @@ Results are typical corner, 27 °C, 1.8 V unless stated. "Corners" means 5 proce
 | Power-up settling | < 50 ms | 10 ms `rst` pulse (≈ 15 s without it) | same | ✓ |
 | Saturation margin, OTA devices | > 0.1 V | ≥ 0.04 V (worst: tail M5 at ss/0 °C/1.71 V; ≥ 0.09 V elsewhere) | ≥ 0.09 V; with mismatch ≥ 0.07 V (100 MC samples at ss/0 °C/1.71 V) | ⚠ §5 |
 | Monte Carlo mismatch, 200 samples (tt, 27 °C) | gain spread < 1 % | not run (§4) | gain 77.70 V/V, σ = 0.044 V/V (0.06 %); output DC offset −0.23 mV, σ = 0.26 mV; VREF σ = 3.2 mV; unit current σ = 4.4 %; IDD 9.3–15.3 µA | ✓ |
-| Area | 1x2 tile (≈160 × 225 µm) | MIM ≈ 14,000 µm² (≈ 40 % of tile); transistors ≈ 4,000 µm² active | | to confirm in layout |
+| Area | 1x2 tile (≈160 × 225 µm) | layout fits the 161 × 225.76 µm tile; MIM ≈ 14,000 µm² (≈ 40 %) | | ✓ (§9) |
+| Post-layout (extracted parasitics) | gain within 1 dB, noise ≤ 4 µVrms | gain −0.04 dB, noise +0.02 µVrms vs schematic, all corners | gain −0.04 dB, noise +0.02 µVrms | ✓ (§9) |
 
 The test environment models the Tiny Tapeout analog path as 500 Ω + 5 pF on each pin. The load is 15 pF ∥ 1 MΩ, standing in for a scope probe or ADC input.
 
@@ -88,7 +89,7 @@ The four schematic sheets are in `docs/EEG_front_end_schematic_v1.pdf`. The edit
 3. **Reset switches add leakage at the input nodes.** They are part of item 1 and, at 55–60 °C, start adding noise in the fs corner (5–72 µVrms at 60 °C; ≤ 3.2 µVrms at 55 °C).
    - A v2 option: replace them with T-switches (two series NMOS with the middle node held at VREF when off) or DNW-isolated switches; this would push the temperature limit up.
 4. **Tail-current-source headroom.** M5 has 0.04 V saturation margin at ss/0 °C/1.71 V (classic models): the PMOS input pair's Vsg is about 1.1 V cold in ss. Gain and noise still meet spec there. Mismatch moves it very little (σ = 8 mV in Monte Carlo; worst of 100 samples 0.07 V on the continuous models). If more margin is wanted: lower VREF by 30–50 mV (costs the 5 mV linear-range margin, not the 1 mV spec) or use `pfet_01v8_lvt` for M1/M2.
-5. **Not yet done:** real Cc/CREF devices in a full run, layout parasitics, and a model of Tiny Tapeout's analog mux (`tt_asw_3v3`). The mux is approximated here by 500 Ω + 5 pF.
+5. **Not modelled:** Tiny Tapeout's analog mux (`tt_asw_3v3`) is approximated by 500 Ω + 5 pF on each pin. Layout parasitics are included since the post-layout runs (§9); the MIM capacitors are still simulated as fitted ideal capacitors (§4).
 6. **Output DC level** is VREF (≈ 0.45 V), not mid-rail. That is fine for small EEG signals: the linear range is ±5 mV at the input.
 
 ## 6. Files
@@ -113,8 +114,11 @@ sim/
   tb_mc.py        Monte Carlo mismatch (gain, output offset, VREF, bias current, M5 margin)
   corners.py      60-point corner sweep (results/corners.json, or corners_combined.json)
   run_all.py      re-runs everything and writes results/summary.json
+  tb_postlayout.py  extracted layout vs schematic: AC, noise, PSRR, corners, reset release, 10 Hz tone
   make_plots.py   figures in results/
-results/          figures (fig4_montecarlo.png), montecarlo.json, summary.json / summary_combined.json, corners.json / corners_combined.json, schematic PDF
+results/          figures (fig1-5), montecarlo.json, summary.json / summary_combined.json, corners.json / corners_combined.json,
+                  postlayout.json / postlayout_combined.json, schematic PDF
+../layout/        scripted Magic layout (build.py rebuilds and checks everything), see §9
 docs/             IMPLEMENTATION_GUIDE.md, schematic sheets (PNG + PDF) and the scripts that draw them
 tinytapeout/      info.yaml, src/project.v stub, docs/info.md
 ```
@@ -136,11 +140,49 @@ tinytapeout/      info.yaml, src/project.v stub, docs/info.md
 
 ## 8. Plan to 30 November
 
-| Week | Work |
+| When | Work |
 |---|---|
-| 20–22 Oct | Set up the tools and reproduce these results (guide Step 0–1). Read every block until you can explain each size. |
-| 23 Oct – 2 Nov | Monte Carlo, real CREF/Cc check, PSRR (Step 2). Tiny Tapeout repo (Step 3). Floorplan in the 160 × 225 µm tile. |
-| 3–23 Nov | Layout in Magic/KLayout: MIM caps first, then the common-centroid input pair, the mirror stacks and the bias. DRC and LVS clean. Lighter during exams. |
-| 24–30 Nov | Extraction and post-layout simulation. GDS/LEF into the Tiny Tapeout template. GitHub repo. Submit. |
+| done (by 23 Oct) | Schematics, pre-layout verification, Tiny Tapeout repository, layout (DRC/LVS/precheck clean), post-layout simulation. |
+| next | Read through the layout and the post-layout results (§9); reproduce one run in the container (`layout/build.py`, `sim/tb_postlayout.py`). |
+| before 30 Nov | Create the project on app.tinytapeout.com for TTSKY26d from the GitHub repository and pay (1x2 analog tile + 2 analog pins = €220). Optional before that: the M5 headroom item in §5.4. |
 
 Chips are expected around May–June 2027. Silicon measurements (gain, f_L, noise, artifact recovery) then become paper material.
+
+## 9. Layout and post-layout verification
+
+The layout is generated by the scripts in `../layout/` (Magic, SKY130 device generator); `python3 build.py` there rebuilds it from nothing and checks it. A from-scratch rebuild gives a GDS identical to the committed one (KLayout XOR, no differences).
+
+![layout](../docs/layout.png)
+
+| Check | Result |
+|---|---|
+| DRC, Magic (every block, core, tile) | 0 errors |
+| Tiny Tapeout precheck (Magic DRC, KLayout FEOL/BEOL, off-grid, pins, analog pins, n-well/URPM, forbidden layers, boundary) | passes, locally and in the GitHub `gds` workflow |
+| LVS, Netgen: pseudo_r, bias, `eeg_afe_core` against the Xschem netlist, and the whole Tiny Tapeout cell | "Circuits match uniquely" |
+| Area | 161 × 225.76 µm (1x2 tile); MIM arrays ≈ 40 % |
+
+**Post-layout simulation** (`sim/tb_postlayout.py`): the extracted core (all parasitic capacitances, hierarchical) and the schematic, both with the on-chip bias, in the same test environment (500 Ω + 5 pF pad paths, 15 pF ∥ 1 MΩ load). MIM capacitors are fitted ideal capacitors in both, as in §4.
+
+| tt, 27 °C (corner ranges: ss/ff/sf/fs at 27 °C, tt at 0 and 50 °C) | Schematic, classic | Layout, classic | Schematic, continuous | Layout, continuous |
+|---|---|---|---|---|
+| Midband gain | 37.79 dB (37.79) | 37.76 dB (37.75–37.76) | 37.79 dB (37.79) | 37.75 dB (37.75) |
+| −3 dB low-pass corner | 22.4 kHz (22.4–25.1) | 22.4 kHz (19.9–22.4) | 17.8 kHz (17.8) | 17.8 kHz (17.8) |
+| Noise, 0.5–100 Hz | 2.93 µVrms (2.88–2.98) | 2.95 µVrms (2.89–3.00) | 3.05 µVrms (2.97–3.09) | 3.07 µVrms (2.99–3.11) |
+| Supply current | 15.7 µA | 15.7 µA | 12.2 µA | 12.2 µA |
+| Output DC level | 0.453 V | 0.453 V | 0.443 V | 0.443 V |
+| PSRR at 50 Hz | 96.5 dB (92–103) | 85.6 dB (81–87) | 90.7 dB (90–101) | 90.3 dB (86–91) |
+| 100 µV / 10 Hz tone, transient with MOS pseudo-resistors | 77.4 V/V | 77.2 V/V | 77.4 V/V | 77.2 V/V |
+| Output step when `rst` is released (2 µs steps) | −0.76 mV | +0.97 mV | −0.71 mV | +1.26 mV |
+
+Frequencies come from a 20-points-per-decade sweep, so 19.9 and 22.4 kHz are neighbouring points.
+
+Gain and noise move by less than 0.05 dB and 0.03 µVrms. The −3 dB high-pass corner of the AC model moves from 0.089 to 0.079 Hz (extra capacitance on the input nodes); the real f_L is set by the pseudo-resistor (§1). The two figures are in `results/fig5_postlayout.png`.
+
+![post-layout](results/fig5_postlayout.png)
+
+**What post-layout simulation changed in the layout.** The first complete layout passed DRC, LVS and the precheck, but its extracted netlist showed two problems, both fixed:
+
+1. *Gain 0.56 dB high (82.7 instead of 77.5 V/V).* The output trunk ran 1 µm from the non-inverting input over about 150 µm (8 fF in the core wiring plus 4 fF inside the OTA). That couples the output into `inp`: positive feedback of about 7 % of the C2 feedback. A vss shield track now runs between the `inp` and `vout` trunks over their whole common length. The −3 dB bandwidth also returned to the schematic value (it had dropped from 22.4 to 19.9 kHz).
+2. *PSRR at 50 Hz 77 dB instead of 96 dB (classic models).* The top input-pair row is an `inn` row and sat 1.5 µm below the M7 row, so `vdd` (0.45 fF) and `vbp` (0.9 fF; it follows the supply) coupled onto `inn` only. With 1.5 µm more space and a metal1 line on the tail node `t` between the rows, these are 0.14 fF each. The remaining difference to the schematic comes from the drain wiring crossing the gates inside the input transistors (`d1`–`inn` 15 fF), which is part of the transistor layout. On the continuous models the layout PSRR is within 1.5 dB of the schematic's at 27 °C. Over corners the layout PSRR is 81–91 dB, far above the 40 dB target: 1 mV of 50 Hz ripple on the supply appears as less than 0.1 µV at the input.
+
+Simulation notes: one parent-level capacitor sits on a net inside the bias cell that is not a port (a node with only capacitors, which makes the DC solution fail); `tb_postlayout.py` removes it (0.3 fF). The extractor's negative correction capacitors are kept. The output step at reset release is simulated with 2 µs steps; with 50 µs steps ngspice reports a false step of tens of mV.

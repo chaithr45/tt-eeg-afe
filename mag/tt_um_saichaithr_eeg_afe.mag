@@ -1,6 +1,6 @@
 magic
 tech sky130A
-timestamp 1792696644
+timestamp 1792699851
 << checkpaint >>
 rect 2437 23126 10075 23156
 rect -455 22706 16714 23126
@@ -210,7 +210,7 @@ rect 11317 0 11407 100
 rect 13249 0 13339 100
 rect 15181 0 15271 100
 use eeg_afe_core  XCORE
-timestamp 1792696578
+timestamp 1792699849
 transform 1 0 0 0 1 0
 box 175 25 16084 22496
 << labels >>

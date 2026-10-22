@@ -6,14 +6,20 @@ From bottom to top:
   input pair: ten rows of 6-finger 5/8 PMOS, A = M1 (inn -> d1), B = M2 (inp -> y),
               rows A B B A A B A B B A (centroids 4.4 / 4.6)
   M7 (two 10-finger 4/2 PMOS) and M5 (8-finger 4/2 PMOS)
-Vertical metal3 risers carry t (left), vdd, vbp (far left) and d1, y, inn, inp, out (right).
+Vertical metal3 risers carry t (left), vdd, vbp (far left) and d1, y, inn, inp, out (right); the
+track between inp and out (X_SHIELD) is left free for a vss shield drawn by the core cell.
+A metal1 line on t between the top input row and M7 shields inn from vdd / vbp.
+Parasitic-driven choices (from post-layout simulation): inp is kept away from out (closed-loop gain),
+and the input pair is spaced from M7 / M5 (supply rejection).
 Ports: inn inp out vdd vss vbp z
 """
 from lay import Cell
 from route import *
 
 X_T, X_VDD, X_VBP = -27.2, -28.4, -29.6
-X_D1, X_Y, X_INN, X_INP, X_OUT = 27.2, 28.2, 29.2, 30.2, 31.2
+X_D1, X_Y, X_INN, X_INP, X_OUT = 26.2, 27.2, 28.2, 29.2, 31.2
+X_SHIELD = 30.2                 # vss shield track between inp and out (drawn by the core cell)
+GAP7 = 1.5                      # extra space between the input pair and M7 / M5 (less vdd / vbp on inn)
 PAIR = 'ABBAABABBA'
 
 def build(name='ota'):
@@ -33,7 +39,7 @@ def build(name='ota'):
             P.append(('A', c.place('p5_8_nf6', f'M1_{na}', 0.0, yp[k]))); na += 1
         else:
             P.append(('B', c.place('p5_8_nf6', f'M2_{nb}', 0.0, yp[k]))); nb += 1
-    y7 = yp[-1] + 3.6 + 1.5 + 3.1        # n-well (t) to n-well (vdd) >= 1.27
+    y7 = yp[-1] + 3.6 + 1.5 + 3.1 + GAP7  # n-well (t) to n-well (vdd) >= 1.27
     M7a = c.place('p4_2_nf10', 'M7_0', -12.6, y7)
     M7b = c.place('p4_2_nf10', 'M7_1', 12.6, y7)
     y5 = y7 + 6.2                          # M5 n-well abuts M7's (both vdd)
@@ -59,6 +65,13 @@ def build(name='ota'):
         xr, yr_ = ring_tap(c, d, 'l', d.y)
         m1_to(c, X_T, xr, d.y)
         c.via1(X_T, d.y); c.via2(X_T, d.y)
+
+    # t shield (metal1) between the top input row (an inn row) and the M7 row, so that vdd and vbp
+    # (which carries supply ripple) do not couple onto inn only
+    top = P[-1][1]
+    y_sh = (top.bbox[3] + M7a.bbox[1]) / 2
+    m1_to(c, X_T, top.bbox[2], y_sh)
+    c.via1(X_T, y_sh); c.via2(X_T, y_sh)
 
     # ---------------------------------------------------------------- M7, M5 (vdd sources, gate vbp)
     for d in (M7a, M7b, M5):
@@ -138,13 +151,13 @@ def build(name='ota'):
 
     # ---------------------------------------------------------------- risers + ports
     riser(c, X_T, yD5, yp[0] - 1.25)
-    riser(c, X_INN, min(cy(d.term('G')) for ab, d in P if ab == 'A'), max(cy(d.term('G')) for ab, d in P if ab == 'A') + 2)
-    riser(c, X_INP, min(cy(d.term('G')) for ab, d in P if ab == 'B'), max(cy(d.term('G')) for ab, d in P if ab == 'B') + 2)
+    riser(c, X_INN, min(cy(d.term('G')) for ab, d in P if ab == 'A'), max(cy(d.term('G')) for ab, d in P if ab == 'A') + 0.8)
+    riser(c, X_INP, min(cy(d.term('G')) for ab, d in P if ab == 'B'), max(cy(d.term('G')) for ab, d in P if ab == 'B') + 0.8)
     riser(c, X_VDD, M7a.y - 1.0, M5.y + 2.0)
     riser(c, X_VBP, cy(M7a.term('G')), cy(M5.term('G')) + 2.0)
     ytop = M5.y + 2.0
-    yinn = max(cy(d.term('G')) for ab, d in P if ab == 'A') + 2
-    yinp = max(cy(d.term('G')) for ab, d in P if ab == 'B') + 2
+    yinn = max(cy(d.term('G')) for ab, d in P if ab == 'A') + 0.8
+    yinp = max(cy(d.term('G')) for ab, d in P if ab == 'B') + 0.8
     c.label('inn', 'metal3', X_INN - 0.2, yinn - 0.4, X_INN + 0.2, yinn, port=1)
     c.label('inp', 'metal3', X_INP - 0.2, yinp - 0.4, X_INP + 0.2, yinp, port=2)
     c.label('out', 'metal3', X_OUT - 0.2, yD7 - 0.2, X_OUT + 0.2, yD7 + 0.2, port=3)

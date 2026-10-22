@@ -3,7 +3,7 @@
 Coordinates in the Python code are in micrometres; Magic's internal unit is 0.005 um
 (magscale 1 2), so every coordinate is rounded to the 5 nm grid.
 
-Workflow (see build.py):
+Workflow (build.py runs all of it):
   1. gen_devices(): the SKY130 device generator (open_pdks) draws every transistor, resistor
      and MIM capacitor as its own cell (guard rings included); cells are saved in mag/.
   2. Python reads the generated cells (magparse.py), knows where every terminal's metal is,

@@ -36,6 +36,27 @@ ax.set_title(f'Input-referred noise: {tt["noise"]:.2f} µVrms over 0.5–100 Hz 
 ax.legend(frameon=False, loc='upper right', fontsize=9)
 fig.tight_layout(); fig.savefig(R + 'fig2_noise.png', dpi=150); plt.close(fig)
 
+# Fig 5: post-layout (extracted parasitics) against the schematic, typical / 27 C
+if os.path.exists(R + 'postlayout_curves.json'):
+    pc = json.load(open(R + 'postlayout_curves.json'))
+    pl = json.load(open(R + 'postlayout.json'))['ac']
+    s, l = pl['tt_27_schematic'], pl['tt_27_layout']
+    fig, axs = plt.subplots(1, 2, figsize=(12, 3.6))
+    for k, col, ls, lab in (('schematic', BLUE, '-', 'Schematic'), ('layout', ORANGE, '--', 'Layout (extracted)')):
+        axs[0].semilogx(pc[k]['f'], pc[k]['g'], color=col, lw=2, ls=ls, label=lab)
+        axs[1].loglog(pc[k]['fn'], np.array(pc[k]['vin']) * 1e9, color=col, lw=2, ls=ls, label=lab)
+    for ax in axs:
+        ax.axvspan(0.5, 100, color=AQUA, alpha=.08, lw=0)
+        ax.set_xlabel('Frequency (Hz)')
+        ax.legend(frameon=False, fontsize=9, loc='lower center' if ax is axs[0] else 'upper right')
+    axs[0].set_xlim(0.01, 1e6); axs[0].set_ylim(0, 44); axs[0].set_ylabel('Gain (dB)')
+    axs[0].set_title(f'Gain: {s["gain_db"]:.2f} dB schematic, {l["gain_db"]:.2f} dB layout; '
+                     f'−3 dB at {l["f_hi_khz"]:.1f} kHz', loc='left', fontsize=10, color=INK)
+    axs[1].set_xlim(0.05, 1e5); axs[1].set_ylabel('Input-referred noise (nV/√Hz)')
+    axs[1].set_title(f'Noise 0.5–100 Hz: {s["noise_uvrms"]:.2f} µVrms schematic, {l["noise_uvrms"]:.2f} layout',
+                     loc='left', fontsize=10, color=INK)
+    fig.tight_layout(); fig.savefig(R + 'fig5_postlayout.png', dpi=150); plt.close(fig)
+
 # Fig 3: transients (small multiples, shared style); needs the saved waveforms (not kept in the git repository)
 if not os.path.exists(R + 'tran_sine.npy'):
     print('fig3 skipped: results/tran_sine.npy and tran_artifact.npy not present'); sys.exit(0)

@@ -1,7 +1,8 @@
 """eeg_afe_core: the whole front-end in Tiny Tapeout tile coordinates (0..161 x 0..225.76 um).
 
 Left column : OTA (top), bias (middle), feedback parts PR1/PR2, SW1/SW2, C2/C2' (x 49..65), CREF (bottom)
-Gutter      : metal3 trunks inn (66.2), inp (67.2), vout (68.2), z (68.95)
+Gutter      : metal3 trunks inn (65.2), inp (66.2), vss shield (67.2), vout (68.2), z (68.95); the shield
+              keeps the output off the non-inverting input (which would raise the gain by ~0.5 dB)
 Right column: C1 (3x3 MIM, bottom, near ua[0]), C1' (3x3 MIM), Cc (2x1 MIM, top)
 Power       : vdd trunk (metal3, x = 2) under the VDPWR stripe, vss trunk (x = 5) under VGND
 Ports (LVS against eeg_afe_top): ua0 ua1 rst vdd vss
@@ -11,7 +12,10 @@ from route import *
 import blk_ota, blk_bias, blk_pseudo_r
 
 TILE_W, TILE_H = 161.0, 225.76
-X_INN, X_INP, X_VOUT, X_Z = 66.2, 67.2, 68.2, 68.95
+OTA_O, BIAS_O = (37.0, 98.0), (19.0, 67.0)
+X_INN, X_INP, X_VOUT = (OTA_O[0] + x for x in (blk_ota.X_INN, blk_ota.X_INP, blk_ota.X_OUT))
+X_SHIELD = OTA_O[0] + blk_ota.X_SHIELD       # vss shield between the inp and vout trunks
+X_Z = 68.95
 X_VDD, X_VSS = 2.0, 5.0
 X_VREF, X_RST = 48.2, 62.5
 UA0_X, UA1_X, RST_PIN_X = 152.26, 132.94, 138.46
@@ -25,7 +29,6 @@ def mim_bars(c, mim, x0, x1):
 def build(name='eeg_afe_core'):
     c = Cell(name)
     # ---------------------------------------------------------------- blocks
-    OTA_O, BIAS_O = (37.0, 98.0), (19.0, 67.0)
     PR1_O, PR2_O = (50.5, 86.0), (50.5, 77.0)
     ota = blk_ota.build(); bias = blk_bias.build(); prb = blk_pseudo_r.build()
     c.place('ota', 'XA1', *OTA_O)
@@ -104,6 +107,11 @@ def build(name='eeg_afe_core'):
     riser(c, X_INP, 52.0, ota_inp_y0)
     riser(c, X_VOUT, 1.6, ota_out_y0)
     riser(c, X_VREF, y_cr, 79.0)
+    # vss shield track between inp and vout over their whole common length (core and OTA parts),
+    # tied to the C1' bottom-plate (vss) metal2 that crosses it at y_vb
+    y_sh0, y_sh1 = 51.0, OTA_O[1] + po['inp'][2] + 0.7
+    riser(c, X_SHIELD, y_sh0, y_sh1)
+    c.via2(X_SHIELD, y_vb)
 
     # vout -> ua[1] along the bottom (metal2 under C1)
     c.via2(X_VOUT, 1.6)

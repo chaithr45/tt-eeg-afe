@@ -1,0 +1,12 @@
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+# PNG previews written next to the PDF figures (the PDFs are what the paper uses)
+figs/*.png
+!figs/layout_raw.png

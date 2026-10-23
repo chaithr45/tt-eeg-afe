@@ -29,5 +29,6 @@ Figure 1 (system block diagram) is TikZ inside the `.tex` file.
 ## Where the numbers come from
 
 - AFE: `design/results/postlayout.json`, `postlayout_combined.json`, `montecarlo.json`, `summary.json` and `design/README.md` (§1, §9).
-- NEF ≈ 10: output noise integrated over the whole band and referred to the input (10.2 µVrms, `postlayout_curves.json`), 15.7 µA total current, f_H = 22.4 kHz, NEF = V_in · sqrt(2 I_tot / (π · U_T · 4kT · BW)).
+- NEF ≈ 10: output noise integrated over the whole band and referred to the input (about 10 µVrms; 9.8–10.7 µVrms depending on the upper integration limit, from `postlayout_curves.json`), 15.7 µA total current, f_H = 22.4 kHz, NEF = V_in · sqrt(2 I_tot / (π · U_T · 4kT · BW)). The 48 nV/√Hz white floor alone gives 9.2, because only 4 µA of the 15.7 µA flows in the input pair.
+- CMRR after digital re-referencing: 62 dB in midband from the within-die Monte Carlo gain spread (chip-to-chip spread not modelled); about 14 dB at 0.5 Hz and 34 dB at 5 Hz if two chips' f_L sit at 0.04 and 0.14 Hz (complex difference of two first-order high-pass responses).
 - Detector: the detector paper and its evaluation logs (not in this repository).
